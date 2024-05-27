@@ -1,9 +1,24 @@
 <template>
-  <div v-html="svgContent" />
+  <div>
+    <div
+      ref="svgContainer"
+      v-html="svgContent"
+    />
+
+    <button
+      type="button"
+      @click="download()"
+    >
+      <span class="material-symbols-rounded">
+        download
+      </span>
+      下載SVG
+    </button>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 const totals = [
   1, 15, 33, 61, 95, 138, 189, 247, 313, 388, 469, 559, 657, 762, 876,  997,
@@ -150,9 +165,7 @@ function writeSvgSeats (partyList, positionsList, radius) {
     const partyBorderColor = partyList[i].border_color
 
     // <g> header
-    result += `
-      <g style="fill:${partyFillColor}; stroke-width:${partyBorderWidth}; stroke:${partyBorderColor}" \n'
-       id="${blockId}"> \n`
+    result += `<g style="fill:${partyFillColor}; stroke-width:${partyBorderWidth}; stroke:${partyBorderColor}" id="${blockId}">\n`
 
     // Party name in a tooltip
     result += `<title>${partyName}</title>`
@@ -194,6 +207,21 @@ function drawSvg (sumDelegates, parties, posList, radius) {
   result += writeSvgSeats(parties, posList, radius)
   result += writeSvgFooter()
   return result
+}
+
+const svgContainer = ref(null)
+
+function download () {
+  const svg = svgContainer.value.querySelector('svg')
+  const data = '<?xml version="1.0" encoding="utf-8"?>' + new XMLSerializer().serializeToString(svg)
+  const svgBlob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' })
+  const url = URL.createObjectURL(svgBlob)
+
+  let a = document.createElement('a')
+  a.setAttribute('download', 'image.svg')
+  a.setAttribute('href', url)
+  a.setAttribute('target', '_blank')
+  a.click()
 }
 
 const props = defineProps<{
