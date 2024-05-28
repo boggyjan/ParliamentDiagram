@@ -18,6 +18,7 @@
         </h2>
         <div
           v-for="(party, idx) in parties"
+          :key="`party_${idx}`"
           class="party-box"
         >
           <div class="name">
@@ -149,7 +150,7 @@ function addParty () {
   })
 }
 
-function delParty (idx) {
+function delParty (idx: number) {
   parties.value.splice(idx, 1)
 }
 </script>

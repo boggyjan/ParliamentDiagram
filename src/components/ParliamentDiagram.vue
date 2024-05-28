@@ -20,6 +20,14 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 
+type Party = {
+  name: string;
+  nb_seats: number;
+  color: string;
+  border_size: number ;
+  border_color: string;
+}
+
 const totals = [
   1, 15, 33, 61, 95, 138, 189, 247, 313, 388, 469, 559, 657, 762, 876,  997,
   1126, 1263, 1408, 1560, 1722, 1889, 2066, 2250, 2442, 2641, 2850, 3064,
@@ -31,7 +39,7 @@ const totals = [
   29001, 29679, 30367, 31061
 ]
 
-function range (start, end, step = 1) {
+function range (start: number, end?: number, step: number = 1) {
   let output = []
   if (typeof end === 'undefined') {
     end = start
@@ -43,7 +51,7 @@ function range (start, end, step = 1) {
   return output
 }
 
-function countDelegates (parties) {
+function countDelegates (parties: Array<Party>): number {
   const result = parties.filter(party => party.nb_seats).map(party => party.nb_seats).reduce((a, b) => a + b, 0)
 
   if (result > totals[totals.length - 1]) {
@@ -52,26 +60,26 @@ function countDelegates (parties) {
   return result
 }
 
-function getNumberOfRows (nbDelegates) {
+function getNumberOfRows (nbDelegates: number): number {
   for (let i of range(totals.length)) {
     if (totals[i] >= nbDelegates) {
       return i + 1
     }
   }
-  // return totals.findIndex(item => item > nbDelegates) + 1
+  return 1
 }
 
-function getSpotsCenters (nbDelegates, nbRows, spotRadius, denseRows) {
+function getSpotsCenters (nbDelegates: number, nbRows: number, spotRadius: number, denseRows: boolean): Array<Array<number>> {
   let discardedRows, diagramFullness
 
   if (denseRows) {
     [discardedRows, diagramFullness] = optimizeRows(nbDelegates, nbRows)
   } else {
     discardedRows = 0
-    diagramFullness = parseFloat(nbDelegates) / totals[nbRows - 1]
+    diagramFullness = nbDelegates / totals[nbRows - 1]
   }
 
-  const positions = []
+  const positions: Array<Array<number>> = []
 
   for (let i of range(1 + discardedRows, nbRows)) {
     // Fill the n-1 firsts rows
@@ -84,47 +92,48 @@ function getSpotsCenters (nbDelegates, nbRows, spotRadius, denseRows) {
   return positions
 }
 
-function optimizeRows (nbDelegates, theoriticalNbRows) {
+function optimizeRows (nbDelegates: number, theoriticalNbRows: number): Array<number> {
   let handledSpots = 0
-  let rowsNeeded = 0
+  // let rowsNeeded = 0
 
   for (let i of range(theoriticalNbRows, 0, -1)) {
     // How many spots can we fit in each row
     // This 2 lines formula was determined by @slashme's math
     const magicNumber = 3.0 * theoriticalNbRows + 4.0 * i - 2.0
     const maxSpotInRow = Math.PI / (2 * Math.asin(2.0 / magicNumber))
-    handledSpots += parseInt(maxSpotInRow)
-    rowsNeeded += 1
+    handledSpots += Math.floor(maxSpotInRow)
+    // rowsNeeded += 1
 
     if (handledSpots >= nbDelegates) {
       const nbUselessRows = i - 1
-      const diagramFullness = parseFloat(nbDelegates) / handledSpots
+      const diagramFullness = nbDelegates / handledSpots
       return [nbUselessRows, diagramFullness]
     }
   }
+  return [0, 0]
 }
 
-function addIthRowSpots (spotsPositions, nbRows, i, spotRadius, diagramFullness) {
+function addIthRowSpots (spotsPositions: Array<Array<number>>, nbRows: number, i: number, spotRadius: number, diagramFullness: number) {
   // Each row can contain pi/(2asin(2/(3n+4i-2))) spots, where n is the
   // number of rows and i is the number of the current row.
   const magicNumber = 3.0 * nbRows + 4.0 * i - 2.0
   const maxSpotInRow = Math.PI / (2 * Math.asin(2.0 / magicNumber))
 
   // Fill the row proportionally to the "fullness" of the diagram
-  const nbSpotsInIthRow = parseInt(diagramFullness * maxSpotInRow)
+  const nbSpotsInIthRow = Math.floor(diagramFullness * maxSpotInRow)
 
   // The radius of the ith row in an N-row diagram (Ri) is (3n+4*i-2)/(4n)
   const ithRowRadius = magicNumber / (4.0 * nbRows)
   appendRowSpotsPositions(spotsPositions, nbSpotsInIthRow, spotRadius, ithRowRadius)
 }
 
-function addLastRowSpots (spotsPositions, nbDelegates, nbRows, spotRadius) {
+function addLastRowSpots (spotsPositions: Array<Array<number>>, nbDelegates: number, nbRows: number, spotRadius: number) {
   const nbLeftoverSeats = nbDelegates - spotsPositions.length
   const lastRowRadius = (7.0 * nbRows - 2.0) / (4.0 * nbRows)
   appendRowSpotsPositions(spotsPositions, nbLeftoverSeats, spotRadius, lastRowRadius)
 }
 
-function appendRowSpotsPositions (spotsPositions, nbSeatsToPlace, spotRadius, rowRadius) {
+function appendRowSpotsPositions (spotsPositions: Array<Array<number>>, nbSeatsToPlace: number, spotRadius: number, rowRadius: number) {
   const sinRrr = Math.sin(spotRadius / rowRadius)
 
   for (let i of range(nbSeatsToPlace)) {
@@ -133,7 +142,7 @@ function appendRowSpotsPositions (spotsPositions, nbSeatsToPlace, spotRadius, ro
     if (nbSeatsToPlace === 1) {
       angle = Math.PI / 2.0
     } else {
-      angle = parseFloat(i) * (Math.PI - 2.0 * sinRrr) / (parseFloat(nbSeatsToPlace) - 1.0) + sinRrr
+      angle = i * (Math.PI - 2.0 * sinRrr) / (nbSeatsToPlace - 1.0) + sinRrr
     }
     spotsPositions.push([
       angle,
@@ -143,18 +152,18 @@ function appendRowSpotsPositions (spotsPositions, nbSeatsToPlace, spotRadius, ro
   }
 }
 
-function writeSvgHeader (partyList) {
+function writeSvgHeader (partyList: Array<Party>) {
   return `<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n
     <svg xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" version="1.1" width="360" height="${200 + partyList.length * 25}" viewBox="0 0 360 ${200 + partyList.length * 25}">\n
       <g>`
 }
 
-function writeSvgNumberOfSeats (nbSeats) {
+function writeSvgNumberOfSeats (nbSeats: number) {
   // Print the number of seats in the middle at the bottom.
   return `<text x="180" y="175" style="font-size:36px;font-weight:bold;text-align:center;text-anchor:middle;font-family:sans-serif">${nbSeats}</text>`
 }
 
-function writeSvgSeats (partyList, positionsList, radius) {
+function writeSvgSeats (partyList: Array<Party>, positionsList: Array<Array<number>>, radius: number) {
   let drawnSpots = 0
   let result = ''
 
@@ -190,7 +199,7 @@ function writeSvgSeats (partyList, positionsList, radius) {
   return result
 }
 
-function writePartyNames (partyList) {
+function writePartyNames (partyList: Array<Party>) {
   let result = ''
 
   for (let i = 0; i < partyList.length; i++) {
@@ -202,12 +211,12 @@ function writePartyNames (partyList) {
   return result
 }
 
-function writeSvgFooter (output) {
+function writeSvgFooter () {
   return `</g>\n
     </svg>`
 }
 
-function makeResult (denserRows, parties) {
+function makeResult (denserRows: boolean, parties: Array<Party>) {
   const sumDelegates = countDelegates(parties)
   const nbRows = getNumberOfRows(sumDelegates)
   // Maximum radius of spot is 0.5/nb_rows; leave a bit of space.
@@ -216,7 +225,7 @@ function makeResult (denserRows, parties) {
   return drawSvg(sumDelegates, parties, posList, radius)
 }
 
-function drawSvg (sumDelegates, parties, posList, radius) {
+function drawSvg (sumDelegates: number, parties: Array<Party>, posList: Array<Array<number>>, radius: number) {
   let result = ''
   result += writeSvgHeader(parties)
   result += writeSvgNumberOfSeats(sumDelegates)
@@ -226,10 +235,15 @@ function drawSvg (sumDelegates, parties, posList, radius) {
   return result
 }
 
-const svgContainer = ref(null)
+const svgContainer = ref(null as HTMLElement | null)
 
 function download () {
-  const svg = svgContainer.value.querySelector('svg')
+  const svg = svgContainer?.value?.querySelector('svg')
+
+  if (!svg) {
+    return
+  }
+
   const data = '<?xml version="1.0" encoding="utf-8"?>' + new XMLSerializer().serializeToString(svg)
   const svgBlob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' })
   const url = URL.createObjectURL(svgBlob)
@@ -243,7 +257,7 @@ function download () {
 
 const props = defineProps<{
   denserRows: boolean,
-  parties: array
+  parties: Array<Party>
 }>()
 
 const svgContent = computed(() => {
