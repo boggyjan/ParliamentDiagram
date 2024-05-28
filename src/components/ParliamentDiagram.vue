@@ -205,7 +205,7 @@ function writePartyNames (partyList: Array<Party>) {
   for (let i = 0; i < partyList.length; i++) {
     const party = partyList[i]
     result += `<rect x="10" y="${196 + i * 25}" width="20" height="20" fill="${party.color}" stroke-width="${party.border_size}" stroke="${party.border_color}" />`
-    result += `<text x="40" y="${210 + i * 25}" style="font-size:12px;font-family:sans-serif">${party.name}</text>`
+    result += `<text x="40" y="${210 + i * 25}" style="font-size:12px;font-family:sans-serif">${party.name} (${party.nb_seats})</text>`
   }
 
   return result
