@@ -214,11 +214,12 @@ function writeSvgFooter () {
 
 function makeResult (denserRows: boolean, parties: Array<Party>) {
   const sumDelegates = countDelegates(parties)
-  console.log(sumDelegates, totals[totals.length - 1])
+
   if (sumDelegates > totals[totals.length - 1]) {
     alert(`無法處理大於${totals[totals.length - 1]}席次的資料`)
     return
   }
+
   const nbRows = getNumberOfRows(sumDelegates)
   // Maximum radius of spot is 0.5/nb_rows; leave a bit of space.
   const radius = 0.4 / nbRows
