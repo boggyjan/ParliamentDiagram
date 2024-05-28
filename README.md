@@ -1,4 +1,2 @@
 # ParliamentDiagram
-
-Rewritten from a API of https://parliamentdiagram.toolforge.org/archinputform.php
-https://github.com/slashme/parliamentdiagram/blob/master/newarch.py
+Rewritten from an API: https://github.com/slashme/parliamentdiagram/blob/master/newarch.py
