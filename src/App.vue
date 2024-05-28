@@ -163,10 +163,11 @@ function delParty (idx: number) {
 <style lang="scss">
 body {
   margin: 0;
-  background: #222;
-  background-image: linear-gradient(0, #000c, #0008), url(https://picsum.photos/id/723/800/600);
-  background-attachment: fixed;
-  background-size: cover;
+  background: #111;
+  background-image: linear-gradient(0, #111f, #1117), url(https://picsum.photos/id/723/800/600);
+  background-size: 100vw 75vw;
+  background-position: top center;
+  background-repeat: no-repeat;
   color: #fafafa;
   font-size: 16px;
   font-family: sans-serif;
