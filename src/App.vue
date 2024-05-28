@@ -41,26 +41,25 @@
               >
             </div>
             <div class="prop-item">
-              <div>顏色</div>
-              <div>
-                <input
-                  v-model="party.color"
-                  type="color"
-                >
-                /
-                線條顏色
-                <input
-                  v-model="party.border_color"
-                  type="color"
-                >
-              </div>
-            </div>
-            <div class="prop-item">
               <div>線條粗度</div>
               <input
                 v-model.number="party.border_size"
                 type="number"
                 min="0"
+              >
+            </div>
+            <div class="prop-item">
+              <div>顏色</div>
+              <input
+                v-model="party.color"
+                type="color"
+              >
+            </div>
+            <div class="prop-item">
+              <div>線條顏色</div>
+              <input
+                v-model="party.border_color"
+                type="color"
               >
             </div>
           </div>
@@ -142,9 +141,9 @@ const parties = ref([
 
 function addParty () {
   parties.value.push({
-    name: 'Party Name',
-    nb_seats: 2,
-    color: '#E2FED9',
+    name: '政黨名稱',
+    nb_seats: 1,
+    color: '#F44ED5',
     border_size: 0,
     border_color: '#000000'
   })
@@ -164,6 +163,7 @@ body {
   background-size: cover;
   color: #fafafa;
   font-size: 16px;
+  font-family: sans-serif;
 }
 
 h1 {
@@ -171,7 +171,7 @@ h1 {
 }
 
 h1, h2 {
-  font-weight: 400;
+  font-weight: 600;
 }
 
 button,
@@ -293,7 +293,6 @@ input[type=color] {
       padding: 20px;
       width: 100%;
       height: auto;
-      aspect-ratio: 360 / 185;
       background: #fff;
       border-radius: 6px;
     }
