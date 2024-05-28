@@ -53,7 +53,12 @@ function countDelegates (parties) {
 }
 
 function getNumberOfRows (nbDelegates) {
-  return totals.findIndex(item => item > nbDelegates) + 1
+  for (let i of range(totals.length)) {
+    if (totals[i] >= nbDelegates) {
+      return i + 1
+    }
+  }
+  // return totals.findIndex(item => item > nbDelegates) + 1
 }
 
 function getSpotsCenters (nbDelegates, nbRows, spotRadius, denseRows) {
@@ -129,18 +134,18 @@ function appendRowSpotsPositions (spotsPositions, nbSeatsToPlace, spotRadius, ro
       angle = Math.PI / 2.0
     } else {
       angle = parseFloat(i) * (Math.PI - 2.0 * sinRrr) / (parseFloat(nbSeatsToPlace) - 1.0) + sinRrr
-      spotsPositions.push([
-        angle,
-        rowRadius * Math.cos(angle) + 1.75,
-        rowRadius * Math.sin(angle)
-      ])
     }
+    spotsPositions.push([
+      angle,
+      rowRadius * Math.cos(angle) + 1.75,
+      rowRadius * Math.sin(angle)
+    ])
   }
 }
 
-function writeSvgHeader () {
+function writeSvgHeader (partyList) {
   return `<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n
-    <svg xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" version="1.1" width="360" height="185" viewBox="0 0 360 185">\n
+    <svg xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" version="1.1" width="360" height="${200 + partyList.length * 25}" viewBox="0 0 360 ${200 + partyList.length * 25}">\n
       <g>`
 }
 
@@ -185,6 +190,18 @@ function writeSvgSeats (partyList, positionsList, radius) {
   return result
 }
 
+function writePartyNames (partyList) {
+  let result = ''
+
+  for (let i = 0; i < partyList.length; i++) {
+    const party = partyList[i]
+    result += `<rect x="10" y="${196 + i * 25}" width="20" height="20" fill="${party.color}" stroke-width="${party.border_size}" stroke="${party.border_color}" />`
+    result += `<text x="40" y="${210 + i * 25}" style="font-size:12px;font-family:sans-serif">${party.name}</text>`
+  }
+
+  return result
+}
+
 function writeSvgFooter (output) {
   return `</g>\n
     </svg>`
@@ -195,16 +212,16 @@ function makeResult (denserRows, parties) {
   const nbRows = getNumberOfRows(sumDelegates)
   // Maximum radius of spot is 0.5/nb_rows; leave a bit of space.
   const radius = 0.4 / nbRows
-
   const posList = getSpotsCenters(sumDelegates, nbRows, radius, denserRows)
   return drawSvg(sumDelegates, parties, posList, radius)
 }
 
 function drawSvg (sumDelegates, parties, posList, radius) {
   let result = ''
-  result += writeSvgHeader()
+  result += writeSvgHeader(parties)
   result += writeSvgNumberOfSeats(sumDelegates)
   result += writeSvgSeats(parties, posList, radius)
+  result += writePartyNames(parties)
   result += writeSvgFooter()
   return result
 }
