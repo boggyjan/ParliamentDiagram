@@ -5,7 +5,7 @@
         <span class="material-symbols-rounded">
           donut_large
         </span>
-        席次分布圖產生器
+        國會席次分布圖產生器
       </h1>
     </header>
     <main>
@@ -99,6 +99,11 @@
             :denser-rows="false"
             :parties="parties"
           />
+          <div class="rewritten">
+            國會席次分布圖由此
+            <a href="https://github.com/slashme/parliamentdiagram/blob/master/newarch.py" target="_blank">API</a>
+            改寫
+          </div>
         </div>
       </div>
     </main>
@@ -165,6 +170,10 @@ body {
   color: #fafafa;
   font-size: 16px;
   font-family: sans-serif;
+}
+
+a {
+  color: currentColor;
 }
 
 h1 {
@@ -297,6 +306,12 @@ input[type=color] {
       background: #fff;
       border-radius: 6px;
     }
+  }
+
+  .rewritten {
+    margin-top: 2rem;
+    font-size: 0.9rem;
+    text-align: center;
   }
 }
 </style>
